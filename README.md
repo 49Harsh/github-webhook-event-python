@@ -218,8 +218,8 @@ Get-Content webhook.log -Wait  # Windows PowerShell
 - **Proper HTTP Status Codes**: 
   - `200 OK`: Successful processing or ignored events
   - `400 Bad Request`: Invalid JSON, missing fields, or malformed data
-  - `500 Internal Server Error`: Unexpected application errors
-  - `503 Service Unavailable`: Database connectivity issues
+  - `500 Internal Server Error**: Unexpected application errors
+  - `503 Service Unavailable**: Database connectivity issues
 - **Detailed Error Messages**: Specific error descriptions to help with debugging
 
 ### 🔧 **Error Recovery Strategies**
@@ -259,3 +259,59 @@ pytest test_integration.py -v
 - **New**: Application logs detailed information to `webhook.log`
 - **New**: MongoDB connection is optional - app works without it
 - **New**: Comprehensive error handling with proper HTTP status codes
+
+# GitHub Webhook Receiver
+
+This project implements a GitHub webhook receiver that listens for repository events (Push, Pull Request, Merge) and stores them in MongoDB. The UI displays these events in real-time by polling the database every 15 seconds.
+
+## Setup
+
+1. Clone this repository
+2. Install dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
+3. Make sure MongoDB is running on localhost:27017
+4. Run the application:
+   ```
+   python app.py
+   ```
+
+## GitHub Webhook Setup
+
+To set up a GitHub webhook to send events to this application:
+
+1. Create a new repository on GitHub (the "action-repo")
+2. Go to the repository Settings > Webhooks > Add webhook
+3. Set the Payload URL to your webhook endpoint (e.g., `http://your-server:5000/webhook`)
+4. Set Content type to `application/json`
+5. Select individual events: Push, Pull requests
+6. Click "Add webhook"
+
+For local testing, you can use a tool like [ngrok](https://ngrok.com/) to expose your local server:
+```
+ngrok http 5000
+```
+
+Then use the ngrok URL as your webhook endpoint.
+
+## Testing
+
+To test the application without actual GitHub events:
+
+1. Seed the database with sample events:
+   ```
+   python seed.py
+   ```
+2. Visit `http://localhost:5000/` to view the events
+
+## Troubleshooting
+
+If you're not seeing events from GitHub:
+
+1. Check MongoDB connection - make sure MongoDB is running
+2. Check webhook logs in GitHub repository settings
+3. Check `webhook.log` for any errors in event processing
+4. Ensure case sensitivity is handled properly for event types and actions
+   - GitHub sends lowercase event types: `push`, `pull_request`
+   - GitHub sends lowercase actions: `opened`, `closed`

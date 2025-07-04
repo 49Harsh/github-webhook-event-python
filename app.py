@@ -56,7 +56,7 @@ mongo_available = init_mongodb()
 def validate_event_type(event_type):
     """Validate event type is supported."""
     supported_events = ['push', 'pull_request']
-    if not event_type or event_type not in supported_events:
+    if not event_type or event_type.lower() not in supported_events:
         return False
     return True
 
@@ -204,10 +204,10 @@ def webhook():
         if event_type == "push":
             payload = create_push_payload(data)
         elif event_type == "pull_request":
-            action = data.get("action", "").upper()
-            if action == "OPENED":
+            action = data.get("action", "").lower()
+            if action == "opened":
                 payload = create_pull_request_opened_payload(data)
-            elif action == "CLOSED" and data.get("pull_request", {}).get("merged"):
+            elif action == "closed" and data.get("pull_request", {}).get("merged"):
                 payload = create_pull_request_merged_payload(data)
     except ValueError as e:
         logger.error(f"Payload validation failed: {e}")
